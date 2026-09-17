@@ -105,6 +105,13 @@ st.markdown(
     div[data-testid="stProgress"] { height: 8px; margin: 10px 0 18px; }
     div[data-testid="stProgress"] > div { background: rgba(38,48,77,.92); border-radius: 99px; }
     div[data-testid="stProgress"] > div > div { background: linear-gradient(90deg, #e0b655 0%, #edc96e 45%, #d64c43 100%); border-radius: 99px; box-shadow: 0 0 14px rgba(218,167,75,.32); }
+    div[role="dialog"] { background: linear-gradient(145deg, #1b2542, #11182e) !important; border: 1px solid rgba(226,189,103,.34); border-radius: 22px; box-shadow: 0 28px 90px rgba(0,0,0,.55); }
+    div[role="dialog"] [data-testid="stMarkdownContainer"] { color: #eef0f5; }
+    .preview-kicker { color: #e2bd67; font-size: 10px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; }
+    .preview-title { color: #f5f4ef; font-size: 25px; font-weight: 800; margin: 5px 0 3px; }
+    .preview-meta { color: #98a4bf; font-size: 12px; }
+    .preview-button button { background: linear-gradient(90deg, rgba(58,70,106,.9), rgba(43,54,88,.9)) !important; color: #e8c978 !important; border-color: rgba(226,189,103,.35) !important; }
+    .preview-button button:hover { background: linear-gradient(90deg, #d3a953, #e1bd70) !important; color: #172039 !important; }
     @media (max-width: 800px) { .main .block-container { padding: 1.25rem 1rem 4rem; } .hero { padding: 30px 20px; } .hero h1 { font-size: 34px; } }
     </style>
     """,
@@ -714,6 +721,7 @@ def process_document(
         "characters": total_characters,
         "source": source,
         "status": "Processed",
+        "full_text": "\n\n".join(page["text"] for page in extracted),
         "id": document_id,
     }
 
@@ -778,6 +786,47 @@ def add_documents(file_items):
         len(new_chunks),
         skipped,
     )
+
+
+# =========================================================
+# DOCUMENT PREVIEW DIALOG
+# =========================================================
+@st.dialog("Document preview", width="large")
+def show_document_preview(document):
+    st.markdown('<div class="preview-kicker">Full document preview</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="preview-title">{html.escape(document["filename"])}</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="preview-meta">{document["type"]}  ·  {document["characters"]:,} characters  ·  {html.escape(document.get("source", "Local Upload"))}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.text_area(
+        "Document text",
+        value=document.get("full_text", "No extracted text is available."),
+        height=560,
+        disabled=True,
+        label_visibility="collapsed",
+    )
+
+
+def find_document(filename, source):
+    for document in st.session_state.documents:
+        if document["filename"] == filename and document.get("source") == source:
+            if document.get("full_text"):
+                return document
+
+            # Documents already present in a live session may predate the
+            # full_text field. Reconstruct a readable preview from chunks.
+            legacy_document = dict(document)
+            matching_chunks = [
+                chunk["text"]
+                for chunk in st.session_state.chunks
+                if chunk["filename"] == filename
+                and chunk.get("source") == source
+            ]
+            legacy_document["full_text"] = "\n\n".join(matching_chunks)
+            return legacy_document
+    return None
 
 
 # =========================================================
@@ -1049,8 +1098,19 @@ if st.session_state.documents:
                 f"{document['characters']:,} characters  •  {source_label}"
             )
             st.caption("✓ Processed")
-            if drive_document:
-                st.progress(1.0, text="DOCUMENT READY  ·  100%")
+            preview_col, status_col = st.columns([1, 2])
+            with preview_col:
+                st.markdown('<div class="preview-button">', unsafe_allow_html=True)
+                if st.button("VIEW DOCUMENT", key=f"library_preview_{document['id']}", use_container_width=True):
+                    preview_document = find_document(
+                        document["filename"],
+                        document.get("source", "Local Upload"),
+                    ) or document
+                    show_document_preview(preview_document)
+                st.markdown('</div>', unsafe_allow_html=True)
+            with status_col:
+                if drive_document:
+                    st.progress(1.0, text="DOCUMENT READY  ·  100%")
 
 else:
     st.info(
@@ -1165,7 +1225,14 @@ if st.session_state.last_answer:
                 """
             )
 
-            st.markdown("**Retrieved text:**")
+            source_document = find_document(source["filename"], source["source"])
+            if source_document is not None:
+                st.markdown('<div class="preview-button">', unsafe_allow_html=True)
+                if st.button("VIEW FULL DOCUMENT", key=f"source_preview_{number}_{source['filename']}", use_container_width=True):
+                    show_document_preview(source_document)
+                st.markdown('</div>', unsafe_allow_html=True)
+
+            st.markdown("**Retrieved passage:**")
 
             # Render retrieved text as text, never as HTML. This prevents
             # document markup or model output from leaking into the page.
