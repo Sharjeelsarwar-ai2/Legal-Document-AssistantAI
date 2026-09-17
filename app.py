@@ -1,4 +1,5 @@
 import io
+import html
 import re
 import hashlib
 import tempfile
@@ -31,107 +32,55 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    .stApp {
-        background: #f6f7fb;
+    :root {
+        --ink: #172033;
+        --muted: #687386;
+        --line: #e5e9ef;
+        --paper: #fffdfa;
+        --navy: #142238;
+        --navy-2: #1d304c;
+        --brass: #b98a4a;
+        --wash: #f4f6f8;
     }
 
-    [data-testid="stSidebar"] {
-        background: #111827;
-        border-right: 1px solid #263244;
-    }
+    .stApp { background: var(--wash); color: var(--ink); }
+    [data-testid="stSidebar"] { background: var(--navy); border-right: 1px solid #2d405c; }
+    [data-testid="stSidebar"] * { color: #f7f5ef !important; }
+    [data-testid="stSidebar"] .stCaption { color: #b8c3d2 !important; }
+    [data-testid="stFileUploader"] section { background: #203451; border: 1px dashed #6f819a; }
+    [data-testid="stFileUploader"] small { color: #b8c3d2 !important; }
 
-    [data-testid="stSidebar"] * {
-        color: #f9fafb !important;
-    }
-
-    .hero {
-        background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
-        padding: 28px 32px;
-        border-radius: 18px;
-        margin-bottom: 22px;
-        color: white;
-        box-shadow: 0 8px 28px rgba(17, 24, 39, 0.12);
-    }
-
-    .hero h1 {
-        margin: 0;
-        font-size: 34px;
-        font-weight: 750;
-    }
-
-    .hero p {
-        margin: 8px 0 0 0;
-        color: #d1d5db;
-        font-size: 16px;
-    }
-
-    .metric-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 16px 18px;
-        box-shadow: 0 4px 18px rgba(17, 24, 39, 0.05);
-    }
-
-    .metric-title {
-        color: #6b7280;
-        font-size: 13px;
-        margin-bottom: 4px;
-    }
-
-    .metric-value {
-        color: #111827;
-        font-size: 25px;
-        font-weight: 700;
-    }
-
-    .answer-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 22px;
-        margin-top: 8px;
-        box-shadow: 0 4px 18px rgba(17, 24, 39, 0.05);
-    }
-
-    .source-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 16px;
-        margin: 10px 0;
-    }
-
-    .source-title {
-        font-weight: 700;
-        color: #111827;
-    }
-
-    .source-meta {
-        color: #6b7280;
-        font-size: 13px;
-        margin: 4px 0 10px 0;
-    }
-
-    .disclaimer {
-        background: #fff7ed;
-        border: 1px solid #fed7aa;
-        color: #9a3412;
-        border-radius: 12px;
-        padding: 12px 15px;
-        font-size: 13px;
-        margin-bottom: 18px;
-    }
-
-    .stButton > button {
-        border-radius: 10px;
-        font-weight: 600;
-    }
+    .brand { padding: 10px 0 22px; }
+    .brand-mark { color: #d4ae72; font-size: 28px; letter-spacing: 2px; }
+    .brand-name { color: #fff; font-size: 22px; font-weight: 700; letter-spacing: -.3px; }
+    .brand-sub { color: #aebbd0; font-size: 12px; margin-top: 5px; letter-spacing: .4px; }
+    .eyebrow { color: var(--brass); font-size: 11px; font-weight: 800; letter-spacing: 1.7px; text-transform: uppercase; margin-bottom: 8px; }
+    .hero { background: linear-gradient(115deg, var(--navy) 0%, var(--navy-2) 100%); border: 1px solid #2c4160; border-radius: 20px; padding: 34px 38px; margin: 4px 0 22px; color: white; box-shadow: 0 14px 34px rgba(20,34,56,.16); }
+    .hero h1 { margin: 0; font-size: 37px; line-height: 1.12; font-weight: 760; letter-spacing: -.8px; }
+    .hero p { margin: 12px 0 0; color: #cbd5e3; font-size: 15px; max-width: 650px; line-height: 1.6; }
+    .hero-rule { width: 48px; border-top: 3px solid #d4ae72; margin: 16px 0 0; }
+    .metric-card, .source-card, .answer-card { background: var(--paper); border: 1px solid var(--line); border-radius: 15px; box-shadow: 0 5px 18px rgba(28,42,61,.045); }
+    .metric-card { padding: 17px 19px; min-height: 84px; }
+    .metric-title { color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: 1.15px; text-transform: uppercase; }
+    .metric-value { color: var(--ink); font-size: 25px; font-weight: 750; margin-top: 5px; }
+    .section-label { color: var(--ink); font-size: 19px; font-weight: 720; letter-spacing: -.2px; margin: 28px 0 12px; }
+    .answer-card { padding: 24px 28px; margin-top: 8px; line-height: 1.72; }
+    .answer-card p:last-child { margin-bottom: 0; }
+    .source-card { padding: 17px 19px; margin: 10px 0; }
+    .source-title { color: var(--ink); font-weight: 720; font-size: 14px; }
+    .source-meta { color: var(--muted); font-size: 12px; margin-top: 6px; }
+    .source-text { color: #39465a; line-height: 1.65; font-size: 14px; white-space: pre-wrap; }
+    .disclaimer { background: #fff9ef; border: 1px solid #ead6b4; color: #735324; border-radius: 12px; padding: 13px 16px; font-size: 12px; line-height: 1.55; margin-bottom: 20px; }
+    .stButton > button { border-radius: 9px; font-weight: 700; border: 1px solid #d7dee8; min-height: 40px; }
+    [data-testid="stSidebar"] .stButton > button { background: #d4ae72; color: #172033 !important; border: 0; }
+    [data-testid="stSidebar"] .stButton > button:hover { background: #e2c28f; }
+    .stTextArea textarea, .stTextInput input { border-radius: 10px; border: 1px solid #d5dce6; background: #fff; }
+    .stTextArea textarea:focus, .stTextInput input:focus { border-color: #b98a4a; box-shadow: 0 0 0 1px #b98a4a; }
+    div[data-testid="stExpander"] { border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
     </style>
     """,
     unsafe_allow_html=True,
 )
-
 
 # =========================================================
 # SETTINGS
@@ -806,9 +755,15 @@ def add_documents(file_items):
 # SIDEBAR
 # =========================================================
 with st.sidebar:
-    st.markdown("## ⚖️ LegalAI")
-    st.caption(
-        "Hybrid RAG Legal Document Assistant"
+    st.markdown(
+        """
+        <div class="brand">
+            <div class="brand-mark">§</div>
+            <div class="brand-name">LegalAI</div>
+            <div class="brand-sub">DOCUMENT INTELLIGENCE WORKSPACE</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
     st.markdown("---")
@@ -972,11 +927,10 @@ with st.sidebar:
 st.markdown(
     """
     <div class="hero">
-        <h1>⚖️ LegalAI</h1>
-        <p>
-            AI-powered legal document analysis with
-            hybrid semantic + keyword search.
-        </p>
+        <div class="eyebrow">Private document workspace</div>
+        <h1>Clarity for every clause.</h1>
+        <p>Ask precise questions across your legal documents and receive grounded answers with the relevant passages close at hand.</p>
+        <div class="hero-rule"></div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -1031,8 +985,8 @@ with col3:
     st.markdown(
         """
         <div class="metric-card">
-            <div class="metric-title">Retrieval</div>
-            <div class="metric-value">Hybrid RAG</div>
+            <div class="metric-title">Workspace</div>
+            <div class="metric-value">Ready</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1046,7 +1000,7 @@ st.markdown("")
 # LOADED DOCUMENTS
 # =========================================================
 if st.session_state.documents:
-    st.markdown("### 📄 Loaded Documents")
+    st.markdown('<div class="section-label">Your document library</div>', unsafe_allow_html=True)
 
     for document in st.session_state.documents:
         if document["pages"] is not None:
@@ -1060,7 +1014,7 @@ if st.session_state.documents:
             f"""
             <div class="source-card">
                 <div class="source-title">
-                    📄 {document["filename"]}
+                    ▪ {html.escape(document["filename"])}
                 </div>
 
                 <div class="source-meta">
@@ -1089,7 +1043,7 @@ else:
 # =========================================================
 # QUESTION AREA
 # =========================================================
-st.markdown("### 💬 Ask Your Legal Documents")
+st.markdown('<div class="section-label">Ask your documents</div>', unsafe_allow_html=True)
 
 question = st.text_area(
     "Ask a question",
@@ -1155,18 +1109,12 @@ if ask_button:
 # DISPLAY ANSWER
 # =========================================================
 if st.session_state.last_answer:
-    st.markdown("### 🤖 AI Answer")
+    st.markdown('<div class="section-label">Analysis</div>', unsafe_allow_html=True)
 
-    st.markdown(
-        f"""
-        <div class="answer-card">
-            {st.session_state.last_answer}
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    with st.container(border=True):
+        st.markdown(st.session_state.last_answer)
 
-    st.markdown("### 📚 Retrieved Sources")
+    st.markdown('<div class="section-label">Supporting passages</div>', unsafe_allow_html=True)
 
     if not st.session_state.last_sources:
         st.info(
@@ -1194,17 +1142,15 @@ if st.session_state.last_answer:
 
                 **Source:** {source["source"]}
 
-                **Hybrid score:** {source["hybrid_score"]:.3f}
+                **Relevance:** {source["hybrid_score"]:.3f}
                 """
             )
 
             st.markdown("**Retrieved text:**")
 
+            # Render retrieved text as text, never as HTML. This prevents
+            # document markup or model output from leaking into the page.
             st.markdown(
-                f"""
-                <div class="source-card">
-                    {source["text"]}
-                </div>
-                """,
+                f'<div class="source-text">{html.escape(source["text"])}</div>',
                 unsafe_allow_html=True,
             )
