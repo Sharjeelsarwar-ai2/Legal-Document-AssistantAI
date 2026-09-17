@@ -46,9 +46,12 @@ st.markdown(
 
     .stApp {
         background:
+            linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px),
             radial-gradient(circle at 8% 0%, rgba(71, 89, 145, .20), transparent 31rem),
             radial-gradient(circle at 92% 72%, rgba(145, 42, 49, .10), transparent 30rem),
             linear-gradient(145deg, var(--night) 0%, #151c33 52%, #11172a 100%);
+        background-size: 42px 42px, 42px 42px, auto, auto, auto;
         color: var(--text);
     }
     .main .block-container { max-width: 1160px; padding: 2.5rem 3rem 5rem; }
@@ -80,13 +83,15 @@ st.markdown(
     .hero-rule { width: 94px; height: 4px; border: 0; margin: 20px auto 0; border-radius: 10px; background: linear-gradient(90deg, var(--gold), #d48b5e, var(--red)); box-shadow: 0 0 18px rgba(226,189,103,.3); }
 
     .metric-card, .source-card, .answer-card { background: var(--panel); border: 1px solid var(--stroke); border-radius: 17px; box-shadow: 0 14px 35px rgba(0,0,0,.13), inset 0 1px rgba(255,255,255,.035); }
-    .metric-card { padding: 17px 19px; min-height: 84px; }
+    .metric-card { padding: 18px 20px; min-height: 84px; background: linear-gradient(135deg, rgba(40,53,86,.88), rgba(25,34,61,.72)); transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+    .metric-card:hover, .source-card:hover { transform: translateY(-2px); border-color: rgba(226,189,103,.48); box-shadow: 0 18px 42px rgba(0,0,0,.22), inset 0 1px rgba(255,255,255,.07); }
     .metric-title { color: #919db8; font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
     .metric-value { color: #f4f3ed; font-size: 26px; font-weight: 760; margin-top: 7px; }
-    .section-label { color: #b5bfd4; font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin: 30px 0 13px; }
-    .answer-card { padding: 25px 29px; margin-top: 8px; line-height: 1.75; color: #e7e9ee; }
+    .section-label { color: #c4cce0; font-size: 11px; font-weight: 850; letter-spacing: 3.4px; text-transform: uppercase; margin: 34px 0 13px; display: flex; align-items: center; gap: 12px; }
+    .section-label:after { content: ""; height: 1px; flex: 1; background: linear-gradient(90deg, rgba(226,189,103,.42), transparent); }
+    .answer-card { padding: 25px 29px; margin-top: 8px; line-height: 1.75; color: #e7e9ee; background: linear-gradient(135deg, rgba(39,51,83,.91), rgba(24,32,58,.78)); }
     .answer-card p:last-child { margin-bottom: 0; }
-    .source-card { padding: 17px 19px; margin: 10px 0; }
+    .source-card { padding: 17px 19px; margin: 10px 0; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
     .source-title { color: #eef0ef; font-weight: 720; font-size: 14px; }
     .source-meta { color: #929db8; font-size: 11px; margin-top: 6px; }
     .source-text { color: #ccd2df; line-height: 1.7; font-size: 14px; white-space: pre-wrap; }
@@ -629,7 +634,44 @@ def extract_drive_folder_id(url):
     return None
 
 
+def extract_drive_file_id(url):
+    match = re.search(
+        r"/file/d/([a-zA-Z0-9_-]+)",
+        url,
+    )
+
+    if match:
+        return match.group(1)
+
+    return None
+
+
 def load_public_drive_folder(url):
+    file_id = extract_drive_file_id(url)
+    if file_id:
+        temp_dir = Path(tempfile.mkdtemp(prefix="legalai_drive_file_"))
+        downloaded_path = gdown.download(
+            id=file_id,
+            output=str(temp_dir / "drive_document"),
+            quiet=True,
+            fuzzy=True,
+        )
+        if not downloaded_path:
+            return []
+
+        path = Path(downloaded_path)
+        extension = path.suffix.lower().replace(".", "")
+        if extension not in SUPPORTED_TYPES:
+            return []
+
+        return [
+            {
+                "filename": path.name,
+                "bytes": path.read_bytes(),
+                "source": "Google Drive",
+            }
+        ]
+
     folder_id = extract_drive_folder_id(url)
 
     if not folder_id:
