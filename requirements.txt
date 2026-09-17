@@ -1,8 +1,8 @@
-streamlit
-sentence-transformers
-faiss-cpu
-groq
-pypdf
-python-docx
-numpy
-gdown==5.2.0
+streamlit>=1.37.0
+faiss-cpu>=1.8.0
+gdown>=5.2.0
+numpy>=1.26.0
+python-docx>=1.1.0
+groq>=0.11.0
+pypdf>=4.3.0
+sentence-transformers>=3.0.0
