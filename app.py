@@ -102,6 +102,9 @@ st.markdown(
     div[data-testid="stExpander"] summary, div[data-testid="stExpander"] summary p { color: #d8ddea !important; }
     .stAlert { background: rgba(35,45,73,.72); border: 1px solid var(--stroke); color: #dce1eb; }
     [data-testid="stMetric"] { background: rgba(35,45,73,.68); border: 1px solid var(--stroke); border-radius: 14px; padding: 10px; }
+    div[data-testid="stProgress"] { height: 8px; margin: 10px 0 18px; }
+    div[data-testid="stProgress"] > div { background: rgba(38,48,77,.92); border-radius: 99px; }
+    div[data-testid="stProgress"] > div > div { background: linear-gradient(90deg, #e0b655 0%, #edc96e 45%, #d64c43 100%); border-radius: 99px; box-shadow: 0 0 14px rgba(218,167,75,.32); }
     @media (max-width: 800px) { .main .block-container { padding: 1.25rem 1rem 4rem; } .hero { padding: 30px 20px; } .hero h1 { font-size: 34px; } }
     </style>
     """,
@@ -1029,35 +1032,25 @@ if st.session_state.documents:
     st.markdown('<div class="section-label">Your document library</div>', unsafe_allow_html=True)
 
     for document in st.session_state.documents:
-        if document["pages"] is not None:
-            page_text = (
-                f"{document['pages']} pages"
-            )
-        else:
-            page_text = "Page count not available"
-
-        st.markdown(
-            f"""
-            <div class="source-card">
-                <div class="source-title">
-                    ▪ {html.escape(document["filename"])}
-                </div>
-
-                <div class="source-meta">
-                    {document["type"]}
-                    &nbsp;•&nbsp;
-                    {page_text}
-                    &nbsp;•&nbsp;
-                    {document["characters"]:,} characters
-                    &nbsp;•&nbsp;
-                    {document["source"]}
-                </div>
-
-                <div>✅ {document["status"]}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
+        page_text = (
+            f"{document['pages']} pages"
+            if document["pages"] is not None
+            else "Page count not available"
         )
+        source_label = document.get("source", "Local Upload")
+        drive_document = source_label == "Google Drive"
+
+        # Native Streamlit elements are used here deliberately. They prevent
+        # metadata such as <div> tags from ever being displayed as document text.
+        with st.container(border=True):
+            st.markdown(f"**▪ {document['filename']}**")
+            st.caption(
+                f"{document['type']}  •  {page_text}  •  "
+                f"{document['characters']:,} characters  •  {source_label}"
+            )
+            st.caption("✓ Processed")
+            if drive_document:
+                st.progress(1.0, text="DOCUMENT READY  ·  100%")
 
 else:
     st.info(
