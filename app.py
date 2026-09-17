@@ -33,50 +33,76 @@ st.markdown(
     """
     <style>
     :root {
-        --ink: #172033;
-        --muted: #687386;
-        --line: #e5e9ef;
-        --paper: #fffdfa;
-        --navy: #142238;
-        --navy-2: #1d304c;
-        --brass: #b98a4a;
-        --wash: #f4f6f8;
+        --night: #11172b;
+        --night-2: #18213b;
+        --panel: rgba(35, 45, 73, .72);
+        --panel-solid: #202a47;
+        --stroke: rgba(150, 166, 205, .25);
+        --text: #f5f4f2;
+        --soft: #a9b2ca;
+        --gold: #e2bd67;
+        --red: #b52d35;
     }
 
-    .stApp { background: var(--wash); color: var(--ink); }
-    [data-testid="stSidebar"] { background: var(--navy); border-right: 1px solid #2d405c; }
-    [data-testid="stSidebar"] * { color: #f7f5ef !important; }
-    [data-testid="stSidebar"] .stCaption { color: #b8c3d2 !important; }
-    [data-testid="stFileUploader"] section { background: #203451; border: 1px dashed #6f819a; }
-    [data-testid="stFileUploader"] small { color: #b8c3d2 !important; }
+    .stApp {
+        background:
+            radial-gradient(circle at 8% 0%, rgba(71, 89, 145, .20), transparent 31rem),
+            radial-gradient(circle at 92% 72%, rgba(145, 42, 49, .10), transparent 30rem),
+            linear-gradient(145deg, var(--night) 0%, #151c33 52%, #11172a 100%);
+        color: var(--text);
+    }
+    .main .block-container { max-width: 1160px; padding: 2.5rem 3rem 5rem; }
+    [data-testid="stHeader"] { background: transparent; }
+    [data-testid="stSidebar"] { background: #11172a; border-right: 1px solid rgba(145,160,195,.16); }
+    [data-testid="stSidebar"] * { color: #edf0f6 !important; }
+    [data-testid="stSidebar"] .stCaption { color: #8f9ab5 !important; }
+    [data-testid="stFileUploader"] section { background: rgba(31,42,70,.65); border: 1px dashed #566482; border-radius: 14px; }
+    [data-testid="stFileUploader"] small { color: #aeb8d0 !important; }
 
-    .brand { padding: 10px 0 22px; }
-    .brand-mark { color: #d4ae72; font-size: 28px; letter-spacing: 2px; }
-    .brand-name { color: #fff; font-size: 22px; font-weight: 700; letter-spacing: -.3px; }
-    .brand-sub { color: #aebbd0; font-size: 12px; margin-top: 5px; letter-spacing: .4px; }
-    .eyebrow { color: var(--brass); font-size: 11px; font-weight: 800; letter-spacing: 1.7px; text-transform: uppercase; margin-bottom: 8px; }
-    .hero { background: linear-gradient(115deg, var(--navy) 0%, var(--navy-2) 100%); border: 1px solid #2c4160; border-radius: 20px; padding: 34px 38px; margin: 4px 0 22px; color: white; box-shadow: 0 14px 34px rgba(20,34,56,.16); }
-    .hero h1 { margin: 0; font-size: 37px; line-height: 1.12; font-weight: 760; letter-spacing: -.8px; }
-    .hero p { margin: 12px 0 0; color: #cbd5e3; font-size: 15px; max-width: 650px; line-height: 1.6; }
-    .hero-rule { width: 48px; border-top: 3px solid #d4ae72; margin: 16px 0 0; }
-    .metric-card, .source-card, .answer-card { background: var(--paper); border: 1px solid var(--line); border-radius: 15px; box-shadow: 0 5px 18px rgba(28,42,61,.045); }
+    .brand { padding: 4px 0 24px; }
+    .brand-mark { color: var(--gold); font-size: 28px; font-weight: 400; line-height: 1; }
+    .brand-name { color: #f7f7f4; font-size: 23px; font-weight: 760; letter-spacing: -.5px; }
+    .brand-sub { color: #8995b2; font-size: 10px; margin-top: 6px; letter-spacing: 1.45px; }
+    [data-testid="stSidebar"] hr { border-color: rgba(145,160,195,.18); }
+    [data-testid="stSidebar"] h3 { color: #bec7db !important; font-size: 11px !important; letter-spacing: 1.7px; text-transform: uppercase; }
+
+    .hero {
+        position: relative; overflow: hidden; text-align: center;
+        background: linear-gradient(140deg, rgba(35,45,76,.86), rgba(18,25,47,.64));
+        border: 1px solid var(--stroke); border-radius: 25px; padding: 39px 34px 34px;
+        margin: 0 0 21px; box-shadow: 0 22px 65px rgba(0,0,0,.23), inset 0 1px rgba(255,255,255,.05);
+    }
+    .hero:after { content: ""; position: absolute; width: 230px; height: 230px; border-radius: 50%; right: -90px; top: -120px; background: rgba(226,189,103,.08); filter: blur(6px); }
+    .eyebrow { color: #aeb8cf; font-size: 11px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 16px; }
+    .hero h1 { margin: 0; font-size: clamp(32px, 5vw, 53px); line-height: 1; font-weight: 850; letter-spacing: -2px; text-transform: uppercase; color: #f5f4f2; }
+    .hero h1:first-letter { color: #e9e9e3; }
+    .hero p { margin: 17px auto 0; color: #929db8; font-size: 12px; max-width: 650px; line-height: 1.7; letter-spacing: 3px; text-transform: uppercase; }
+    .hero-rule { width: 94px; height: 4px; border: 0; margin: 20px auto 0; border-radius: 10px; background: linear-gradient(90deg, var(--gold), #d48b5e, var(--red)); box-shadow: 0 0 18px rgba(226,189,103,.3); }
+
+    .metric-card, .source-card, .answer-card { background: var(--panel); border: 1px solid var(--stroke); border-radius: 17px; box-shadow: 0 14px 35px rgba(0,0,0,.13), inset 0 1px rgba(255,255,255,.035); }
     .metric-card { padding: 17px 19px; min-height: 84px; }
-    .metric-title { color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: 1.15px; text-transform: uppercase; }
-    .metric-value { color: var(--ink); font-size: 25px; font-weight: 750; margin-top: 5px; }
-    .section-label { color: var(--ink); font-size: 19px; font-weight: 720; letter-spacing: -.2px; margin: 28px 0 12px; }
-    .answer-card { padding: 24px 28px; margin-top: 8px; line-height: 1.72; }
+    .metric-title { color: #919db8; font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+    .metric-value { color: #f4f3ed; font-size: 26px; font-weight: 760; margin-top: 7px; }
+    .section-label { color: #b5bfd4; font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin: 30px 0 13px; }
+    .answer-card { padding: 25px 29px; margin-top: 8px; line-height: 1.75; color: #e7e9ee; }
     .answer-card p:last-child { margin-bottom: 0; }
     .source-card { padding: 17px 19px; margin: 10px 0; }
-    .source-title { color: var(--ink); font-weight: 720; font-size: 14px; }
-    .source-meta { color: var(--muted); font-size: 12px; margin-top: 6px; }
-    .source-text { color: #39465a; line-height: 1.65; font-size: 14px; white-space: pre-wrap; }
-    .disclaimer { background: #fff9ef; border: 1px solid #ead6b4; color: #735324; border-radius: 12px; padding: 13px 16px; font-size: 12px; line-height: 1.55; margin-bottom: 20px; }
-    .stButton > button { border-radius: 9px; font-weight: 700; border: 1px solid #d7dee8; min-height: 40px; }
-    [data-testid="stSidebar"] .stButton > button { background: #d4ae72; color: #172033 !important; border: 0; }
-    [data-testid="stSidebar"] .stButton > button:hover { background: #e2c28f; }
-    .stTextArea textarea, .stTextInput input { border-radius: 10px; border: 1px solid #d5dce6; background: #fff; }
-    .stTextArea textarea:focus, .stTextInput input:focus { border-color: #b98a4a; box-shadow: 0 0 0 1px #b98a4a; }
-    div[data-testid="stExpander"] { border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+    .source-title { color: #eef0ef; font-weight: 720; font-size: 14px; }
+    .source-meta { color: #929db8; font-size: 11px; margin-top: 6px; }
+    .source-text { color: #ccd2df; line-height: 1.7; font-size: 14px; white-space: pre-wrap; }
+    .disclaimer { background: rgba(78,64,38,.28); border: 1px solid rgba(226,189,103,.30); color: #d9c897; border-radius: 13px; padding: 13px 16px; font-size: 11px; line-height: 1.6; margin-bottom: 20px; }
+    .stButton > button { border-radius: 11px; font-weight: 750; border: 1px solid var(--stroke); min-height: 42px; background: rgba(39,49,78,.75); color: #eef0f6; letter-spacing: .3px; }
+    .stButton > button:hover { border-color: var(--gold); color: var(--gold); }
+    [data-testid="stSidebar"] .stButton > button { background: linear-gradient(90deg, #d3a953, #e1bd70); color: #172039 !important; border: 0; }
+    [data-testid="stSidebar"] .stButton > button:hover { color: #172039 !important; filter: brightness(1.08); }
+    .stTextArea textarea, .stTextInput input { border-radius: 13px; border: 1px solid var(--stroke); background: rgba(26,35,61,.75); color: #f0f1f4; }
+    .stTextArea textarea::placeholder, .stTextInput input::placeholder { color: #737f9c; }
+    .stTextArea textarea:focus, .stTextInput input:focus { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+    div[data-testid="stExpander"] { border: 1px solid var(--stroke); border-radius: 14px; background: rgba(31,41,67,.56); }
+    div[data-testid="stExpander"] summary, div[data-testid="stExpander"] summary p { color: #d8ddea !important; }
+    .stAlert { background: rgba(35,45,73,.72); border: 1px solid var(--stroke); color: #dce1eb; }
+    [data-testid="stMetric"] { background: rgba(35,45,73,.68); border: 1px solid var(--stroke); border-radius: 14px; padding: 10px; }
+    @media (max-width: 800px) { .main .block-container { padding: 1.25rem 1rem 4rem; } .hero { padding: 30px 20px; } .hero h1 { font-size: 34px; } }
     </style>
     """,
     unsafe_allow_html=True,
@@ -771,7 +797,7 @@ with st.sidebar:
     # -------------------------
     # Local PC uploads
     # -------------------------
-    st.markdown("### 📁 Upload from PC")
+    st.markdown("### UPLOAD DOCUMENTS")
 
     uploaded_files = st.file_uploader(
         "Choose legal documents",
@@ -821,7 +847,7 @@ with st.sidebar:
     # -------------------------
     # Google Drive
     # -------------------------
-    st.markdown("### 🔗 Google Drive")
+    st.markdown("### GOOGLE DRIVE")
 
     drive_link = st.text_input(
         "Public Drive folder link",
@@ -892,7 +918,7 @@ with st.sidebar:
     # -------------------------
     # Knowledge base
     # -------------------------
-    st.markdown("### 📊 Knowledge Base")
+    st.markdown("### DOCUMENT LIBRARY")
 
     st.metric(
         "Documents",
@@ -928,8 +954,8 @@ st.markdown(
     """
     <div class="hero">
         <div class="eyebrow">Private document workspace</div>
-        <h1>Clarity for every clause.</h1>
-        <p>Ask precise questions across your legal documents and receive grounded answers with the relevant passages close at hand.</p>
+        <h1>ASK YOUR DOCUMENTS.</h1>
+        <p>SEARCH • UNDERSTAND • ACT WITH CONFIDENCE</p>
         <div class="hero-rule"></div>
     </div>
     """,
@@ -1055,7 +1081,7 @@ question = st.text_area(
 )
 
 ask_button = st.button(
-    "🔎 Search & Ask",
+    "ASK THE DOCUMENTS",
     type="primary",
     use_container_width=True,
 )
