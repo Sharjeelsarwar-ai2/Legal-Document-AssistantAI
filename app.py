@@ -662,7 +662,6 @@ def load_public_drive_folder(url):
         output=temp_dir,
         quiet=True,
         use_cookies=False,
-        remaining_ok=True,
     )
 
     if not downloaded_files:
